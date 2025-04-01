@@ -581,7 +581,6 @@ contains
         tree => kdtree2_create(possie, sort =.false., rearrange =.true.)
 
         num_max = 20000000
-        allocate(t_s(num_max), t_s_all(num_max))
    
         allocate(results(num_max))
         do j = 1, jm
@@ -610,14 +609,16 @@ contains
               cycle
             end if
 
+            num_found = min(num_found, num_max)
+
+            allocate(t_s(num_found), t_s_all(num_found), source=0.0)
+
             wet_in_poly = 0
             in_poly = 0
-            t_s = 0
-            t_s_all = 0
 
             bndsx = [x_out(i, j), x_out(i+1, j), x_out(i+1, j+1), x_out(i, j+1)]
             bndsy = [y_out(i, j), y_out(i+1, j), y_out(i+1, j+1), y_out(i, j+1)]
-            do n = 1, min(num_found, num_max)
+            do n = 1, num_found
               ib = idx(results(n)%idx)
               jb = jdx(results(n)%idx)
               !if (topo_in(ib, jb) > 0.0) cycle
@@ -645,6 +646,8 @@ contains
               call quicksort(t_s, frst, lst)
               topo_med_out(i, j) = t_s(max(wet_in_poly/2, 1))
             end if
+
+            deallocate(t_s, t_s_all)
           end do
         end do
 
